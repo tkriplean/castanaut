@@ -57,13 +57,13 @@ Castanaut.Coords = Castanaut.Coords || {
   forElement: function (selector, index) {
     var obj = Castanaut.DomQuery.select(selector)[index];
     var pos = Castanaut.Coords.windowPos(obj);
-    if (pos[0] < 0 || pos[1] < 0) {
-      obj.scrollIntoView();
-      pos = Castanaut.Coords.windowPos(obj);
-      if (pos[0] < 0 || pos[1] < 0) {
-        return pos.join(' ');
-      }
-    }
+    // if (pos[0] < 0 || pos[1] < 0) {
+    //   obj.scrollIntoView();
+    //   pos = Castanaut.Coords.windowPos(obj);
+    //   if (pos[0] < 0 || pos[1] < 0) {
+    //     return pos.join(' ');
+    //   }
+    // }
 
     pos[0] += window.screenX + (window.outerWidth - window.innerWidth);
 
