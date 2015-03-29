@@ -41,6 +41,64 @@ module Castanaut
         end
       end
 
+      # Scroll to a place on the page
+      # Accepts an element by which we'll move to top. 
+      # Options:
+      #    edge_offset: padding for element (default = 10)
+      #    duration: how long the scroll should take, in milliseconds
+      def scroll_to(selector, edge_offset = 10, duration = 1000)
+        coords = wait_for_element(selector)
+
+        get_y = """
+          var getY = function(){
+            var el = document.querySelector('#{selector}'), 
+                rect = el.getBoundingClientRect(),
+                doc = document.documentElement;
+            return rect.top + window.scrollY - doc.clientTop - #{edge_offset.to_i};
+          }
+
+        """
+
+        if duration > 0
+
+          execute_javascript """
+            #{get_y}
+            window.__scrolling = true;
+            var y = getY(),
+                distance = y - window.scrollY, 
+                per_scroll = distance / #{duration} * 10,
+                scroll_events = Math.round(distance / per_scroll);
+
+            var tick = function(i){
+              if ( i < scroll_events ){
+                setTimeout(function(){
+                  window.scrollTo(0, window.scrollY + per_scroll)
+                  tick(i + 1)
+                }, per_scroll)                
+              } else {
+                window.__scrolling = false;
+              }
+            }
+            tick(0)
+          """
+
+          # wait for scroll to finish
+          while execute_javascript("return window.__scrolling").strip == 'true'
+            sleep 0.01
+          end
+
+        else 
+          execute_javascript """
+            #{get_y}
+            var y = getY();
+
+            window.scrollTo(0,  y);
+          """
+
+        end
+
+      end
+
       # Sleep until the specified element appears on-screen. Use this if you
       # want to wait until the a page or AJAX request has finished loading
       # before proceding to the next command.
@@ -60,7 +118,7 @@ module Castanaut
           begin
             coords = element_coordinates(selector, options)
             return coords unless coords.nil?
-          rescue Castanaut::Exceptions::ElementNotFound > e
+          rescue Castanaut::Exceptions::ElementNotFound => e
             raise e if Time.now.to_i > timeout
           end
           sleep 0.3
@@ -147,6 +205,7 @@ module Castanaut
           `)
 
           unless coords.match(/\d+ \d+ \d+ \d+/)
+            puts "NOT FOUND: #{selector}"
             raise Castanaut::Exceptions::ElementNotFound
           end
 
