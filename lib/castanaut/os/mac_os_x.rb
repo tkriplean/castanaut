@@ -114,7 +114,8 @@ module Castanaut; module OS; module MacOSX
       @cursor_loc[:x] = options[:to][:left]
       @cursor_loc[:y] = options[:to][:top]
 
-      automatically "mousemove #{@cursor_loc[:x]} #{@cursor_loc[:y]}"
+      options[:speed] ||= 1
+      automatically "mousemove #{@cursor_loc[:x]} #{@cursor_loc[:y]} #{options[:speed]}"
     end
 
     alias :move :cursor
@@ -154,7 +155,9 @@ module Castanaut; module OS; module MacOSX
     def drag(*options)
       options = combine_options(*options)
       apply_offset(options)
-      automatically "mousedrag #{options[:to][:left]} #{options[:to][:top]}"
+      options[:speed] ||= 4
+
+      automatically "mousedrag #{options[:to][:left]} #{options[:to][:top]} #{options[:speed]}"
     end
 
 
