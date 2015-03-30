@@ -46,15 +46,15 @@ module Castanaut
       # Options:
       #    edge_offset: padding for element (default = 10)
       #    duration: how long the scroll should take, in milliseconds
-      def scroll_to(selector, edge_offset = 10, duration = 1000)
-        coords = wait_for_element(selector)
+      def scroll_to(selector, duration = 1000, edge_offset = 0)
+        wait_for_element(selector)
 
         get_y = """
+          #{script('coords.js')}
           var getY = function(){
             var el = document.querySelector('#{selector}'), 
-                rect = el.getBoundingClientRect(),
-                doc = document.documentElement;
-            return rect.top + window.scrollY - doc.clientTop - #{edge_offset.to_i};
+                coords = Castanaut.Coords.documentPos(el);
+            return coords[1] - #{edge_offset.to_i};
           }
 
         """
@@ -66,7 +66,7 @@ module Castanaut
             window.__scrolling = true;
             var y = getY(),
                 distance = y - window.scrollY, 
-                per_scroll = distance / #{duration} * 10,
+                per_scroll = Math.round(distance / #{duration} * 10),
                 scroll_events = Math.round(distance / per_scroll);
 
             var tick = function(i){

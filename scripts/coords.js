@@ -2,42 +2,12 @@ var Castanaut = Castanaut || {};
 
 Castanaut.Coords = Castanaut.Coords || {
   documentPos: function (obj) {
-    origObj = obj;
-    var curleft = curtop = 0;
-    if (obj.offsetParent) {
-      do {
-        curleft += obj.offsetLeft;
-        curtop += obj.offsetTop;
+    var rect = obj.getBoundingClientRect(),
+        doc = document.documentElement,
+        top = Math.round(rect.top + window.pageYOffset - doc.clientTop),
+        left = Math.round(rect.left + window.pageXOffset - doc.clientLeft);
 
-        var style = getComputedStyle(obj),
-                    transform = style.transform || style.webkitTransform || style.mozTransform;
-
-        // handle css transform translations
-        if(transform) {
-
-          // modified from http://stackoverflow.com/questions/21912684
-          var mat = transform.match(/^matrix3d\((.+)\)$/), x = 0, y = 0;
-          if(mat){ 
-            x = parseFloat(mat[1].split(', ')[12]);
-            y = parseFloat(mat[1].split(', ')[13]);
-          }
-          else{
-            mat = transform.match(/^matrix\((.+)\)$/);
-            if(mat) {
-              x = parseFloat(mat[1].split(', ')[4]);
-              y = parseFloat(mat[1].split(', ')[5]);
-            } 
-
-          }
-
-          curleft += x
-          curtop += y
-        }
-
-      } while (obj = obj.offsetParent);
-    }
-
-    return [curleft,curtop,origObj.offsetWidth,origObj.offsetHeight];
+    return [left, top, obj.offsetWidth, obj.offsetHeight];
   },
 
   windowPos: function (obj) {
