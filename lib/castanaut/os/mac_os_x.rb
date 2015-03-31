@@ -63,16 +63,17 @@ module Castanaut; module OS; module MacOSX
     end
 
 
-    # If you pass :applescript => true, the AppleScript technique for typing
+    # If you pass :speed, the AppleScript technique for typing
     # will be used. In this way you can use the :speed option —
     # it's not supported by the main (osxautomation) technique.
     #
     def type(str, opts = {})
-      if opts.delete(:applescript)
+      if opts[:speed]
         type_via_applescript(str, opts)
       else
         automatically "type #{str}"
       end
+
     end
 
 
@@ -98,8 +99,11 @@ module Castanaut; module OS; module MacOSX
           end tell
       '
       execute_applescript cmd
+
       str
     end
+
+
 
 
     #---------------------------------------------------------------------------
@@ -115,6 +119,7 @@ module Castanaut; module OS; module MacOSX
       @cursor_loc[:y] = options[:to][:top]
 
       options[:speed] ||= 1
+
       automatically "mousemove #{@cursor_loc[:x]} #{@cursor_loc[:y]} #{options[:speed]}"
     end
 
@@ -128,7 +133,8 @@ module Castanaut; module OS; module MacOSX
 
 
     def click(btn = "left")
-      automatically "mouseclick #{mouse_button_translate(btn)}"
+      #automatically "mouseclick #{mouse_button_translate(btn)}"
+      run 'cliclick c:.'
     end
 
 
@@ -158,6 +164,7 @@ module Castanaut; module OS; module MacOSX
       options[:speed] ||= 4
 
       automatically "mousedrag #{options[:to][:left]} #{options[:to][:top]} #{options[:speed]}"
+      run 'cliclick du:.'
     end
 
 
