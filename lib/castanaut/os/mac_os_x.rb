@@ -74,6 +74,23 @@ module Castanaut; module OS; module MacOSX
         automatically "type #{str}"
       end
 
+      # Quickly switch between a different app
+      # Hackity fix that addresses and odd issue where mouse cursor 
+      # disappears in any screen recording after input has been 
+      # typed into the screen programmatically. Quick switch 
+      # between apps restores mouse cursor in recordings...
+      execute_applescript(%Q'
+        tell application "System Events"
+          key code 48 using {command down}
+        end tell
+      ')     
+
+      execute_applescript(%Q'
+        tell application "System Events"
+          key code 48 using {command down}
+        end tell
+      ')     
+
     end
 
 
