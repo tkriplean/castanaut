@@ -74,22 +74,41 @@ module Castanaut; module OS; module MacOSX
         automatically "type #{str}"
       end
 
-      # Quickly switch between a different app
-      # Hackity fix that addresses and odd issue where mouse cursor 
+      ##################
+      # Hackity workarounds that address an odd issue where mouse cursor 
       # disappears in any screen recording after input has been 
       # typed into the screen programmatically. Quick switch 
       # between apps restores mouse cursor in recordings...
-      execute_applescript(%Q'
-        tell application "System Events"
-          key code 48 using {command down}
-        end tell
-      ')     
+      # More description can be found at 
+      # http://stackoverflow.com/questions/29377943/
 
-      execute_applescript(%Q'
-        tell application "System Events"
-          key code 48 using {command down}
-        end tell
-      ')     
+      # Hack #1 
+      #  Do a quick right click on an application menu and close, which
+      #  triggers a repaint or something that restores AV Foundation's 
+      #  ability to record the cursor. 
+      #   - Only works when there is an application menu 
+      #   - Only works when the context menu that appears remains 
+      #     outside the recorded area. 
+      #   + doesn't cause any flicker in the screencast
+
+      pos = run "cliclick p"
+      pos = /\d+,\d+/.match(pos)[0]   
+      run "cliclick kd:ctrl c:900,30 ku:ctrl c:900,30"
+      pause 1
+      run "cliclick m:#{pos}" # restore the location
+
+      # Hack #2
+      #  Trigger a repaint by quickly switching between apps with 
+      #  two quick CMD-Tab presses. 
+      #   - causes a flicker in the input focus in your screencast
+      #   + more reliable & general than Hack #1
+      #
+      # execute_applescript(%Q'
+      #   tell application "System Events"
+      #     key code 48 using {command down}
+      #     key code 48 using {command down}
+      #   end tell
+      # ')     
 
     end
 
